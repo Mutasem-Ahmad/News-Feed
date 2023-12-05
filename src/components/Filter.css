@@ -1,0 +1,13 @@
+.checkbox-container {
+    padding: 16px;
+    background-color: rgb(216, 206, 11);
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    width: 100%;
+    position: fixed;
+}
+
+.select-input {
+    padding: 16px;
+}

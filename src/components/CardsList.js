@@ -2,10 +2,13 @@ import Card from './Card'
 import './CardList.css'
 
 const CardsList = (props) => {
+    const filteredData = props.data.filter(feed => {
+        return feed.parentTitle === props.selectedFilterValue
+    })
     return (
         <div className='card-list'>
-            {props?.data?.length && props?.data?.map(feed => (
-                <Card key={feed.guid} feed={feed} image={props?.cardImage} />
+            {filteredData.length && filteredData.map(feed => (
+                <Card key={feed.guid} feed={feed} image={feed.image} />
             ))}
         </div>
     )

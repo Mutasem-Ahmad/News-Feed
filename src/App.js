@@ -4,30 +4,45 @@ import { feeds } from "./config";
 import { xml2json } from './utils/helper';
 import CardsList from './components/CardsList'
 import Filter from './components/Filter'
+import './App.css'
 
 const App = () => {
-  const [listOfData, setlistOfData] = useState();
+  const [listOfData, setlistOfData] = useState([]);
+  const [listNewsChannel, setlistNewsChannel] = useState([]);
+  const [selectedFilterValue, setSelectedFilterValue] = useState("الوكيل الاخباري")
 
   useEffect(() => {
-    async function fetchData() {
-      axios.get(feeds[0].url)
-        .then(response => {
-          const parser = new DOMParser();
-          const srcDOM = parser.parseFromString(response.data, "application/xml");
-          setlistOfData(prevData => (xml2json(srcDOM)?.rss?.channel));
-        })
-        .catch(error => {
-          console.log(error);
+    async function fetchData(url) {
+      const requests = feeds.map((feed) => axios.get(feed.url));
+      axios.all(requests).then((responses) => {
+        const channels = [];
+        responses.forEach((resp) => {
+          if (resp.data) {
+            const parser = new DOMParser();
+            const srcDOM = parser.parseFromString(resp.data, "application/xml");
+            const channel = xml2json(srcDOM)?.rss?.channel;
+            channels.push(channel);
+          }
         });
+
+        const newData = channels.flatMap(channel =>
+          channel.item.map(data => ({ image: channel.image, parentTitle: channel.title, ...data }))
+        );
+        setlistOfData(prevData => ([...newData]));
+        setlistNewsChannel(prevData => ([...channels]));
+      }).catch(error => {
+        console.log(error);
+      });
     }
     fetchData();
   }, []);
 
   return (
     <div>
-      <h1 style={{ textAlign: 'center' }}>{listOfData?.title}</h1>
-      <Filter />
-      <CardsList data={listOfData?.item} cardImage={listOfData?.image} />
+      <Filter data={listNewsChannel} selectedFilterValue={selectedFilterValue} setSelectedFilterValue={setSelectedFilterValue} />
+      <div className="main-content">
+        {listOfData.length > 0 && <CardsList data={listOfData} selectedFilterValue={selectedFilterValue} />}
+      </div>
     </div>
   )
 }

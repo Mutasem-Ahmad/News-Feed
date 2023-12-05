@@ -1,7 +1,6 @@
 import './Card.css'
 
 const Card = (props) => {
-    console.log(props.feed, 'image')
     return (
         <div id="card">
             <a rel="noreferrer" href={props.feed?.link} target='_blank'>
