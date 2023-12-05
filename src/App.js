@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import axios from 'axios';
-import { feeds } from "./config";
 import { xml2json } from './utils/helper';
 import CardsList from './components/CardsList'
 import Filter from './components/Filter'
@@ -12,28 +11,28 @@ const App = () => {
   const [selectedFilterValue, setSelectedFilterValue] = useState("الوكيل الاخباري")
 
   useEffect(() => {
-    async function fetchData(url) {
-      const requests = feeds.map((feed) => axios.get(feed.url));
-      axios.all(requests).then((responses) => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get('http://localhost:3001/rss-feed');
         const channels = [];
-        responses.forEach((resp) => {
-          if (resp.data) {
+        response.data.forEach((resp) => {
+          if (resp) {
             const parser = new DOMParser();
-            const srcDOM = parser.parseFromString(resp.data, "application/xml");
+            const srcDOM = parser.parseFromString(resp, "application/xml");
             const channel = xml2json(srcDOM)?.rss?.channel;
             channels.push(channel);
           }
         });
-
         const newData = channels.flatMap(channel =>
           channel.item.map(data => ({ image: channel.image, parentTitle: channel.title, ...data }))
         );
         setlistOfData(prevData => ([...newData]));
         setlistNewsChannel(prevData => ([...channels]));
-      }).catch(error => {
-        console.log(error);
-      });
-    }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
     fetchData();
   }, []);
 

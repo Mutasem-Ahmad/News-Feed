@@ -1,4 +1,4 @@
-export const xml2json = (xml) => {
+const xml2json = (xml) => {
     try {
         let obj = {};
         if (xml.children.length > 0) {
@@ -25,4 +25,8 @@ export const xml2json = (xml) => {
     } catch (e) {
         console.log(e.message);
     }
+}
+
+module.exports = {
+    xml2json: xml2json
 }
